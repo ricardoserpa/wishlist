@@ -5,48 +5,94 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Wishlist</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 body{margin:0;font-family:Inter,Arial;background:#f7f3ef;color:#56433c}
-.container{max-width:1100px;margin:0 auto;padding:20px}
+.container{max-width:1200px;margin:0 auto;padding:20px}
+
 h1{text-align:center;font-size:42px;margin:10px 0}
 .subtitle{text-align:center;color:#8f7b72;margin-bottom:20px}
 
+/* GRID CORRETO (SEM SCROLL LATERAL) */
 .grid{
  display:grid;
- grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
- gap:14px;
+ grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+ gap:16px;
 }
 
+/* CARD IGUAL AO PRINT */
 .card{
- background:#fff;
- border-radius:16px;
+ background:#ffffff;
+ border-radius:20px;
  overflow:hidden;
- box-shadow:0 8px 20px rgba(0,0,0,0.06);
+ box-shadow:0 10px 25px rgba(0,0,0,0.06);
 }
-.card img{width:100%;height:130px;object-fit:cover}
-.card-body{padding:10px}
-.card-name{font-weight:600}
-.card-price{font-size:14px;margin-top:4px;color:#6c544c}
 
-.summary{
- margin-top:40px;
+.card img{
+ width:100%;
+ height:150px;
+ object-fit:cover;
 }
+
+.card-body{
+ padding:12px;
+}
+
+.card-name{
+ font-weight:600;
+ font-size:15px;
+ margin-bottom:4px;
+}
+
+.card-price{
+ font-size:14px;
+ font-weight:500;
+ margin-bottom:6px;
+}
+
+.card-store{
+ font-size:13px;
+ color:#7a6a63;
+}
+
+.card-person{
+ font-size:12px;
+ color:#a3948b;
+ margin-top:4px;
+}
+
+/* RESUMO */
+.summary{margin-top:40px}
+
 .summary-grid{
  display:grid;
  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
  gap:14px;
 }
+
 .summary-card{
  background:#fff;
  padding:18px;
- border-radius:16px;
+ border-radius:18px;
 }
-.summary-title{font-size:12px;color:#8f7b72}
-.summary-value{font-size:22px;font-weight:bold;margin-top:4px}
+
+.summary-title{
+ font-size:12px;
+ color:#8f7b72;
+ text-transform:uppercase;
+}
+
+.summary-value{
+ font-size:22px;
+ font-weight:bold;
+ margin-top:6px;
+}
 </style>
 </head>
+
 <body>
 <div class="container">
+
 <h1>Wishlist</h1>
 <div class="subtitle">Minha listinha de compras</div>
 
@@ -80,6 +126,7 @@ async function load(){
 function render(items){
  const grid=document.getElementById('grid');
  grid.innerHTML='';
+
  let total=items.length;
  let need=0,spent=0,fav=0;
 
@@ -90,12 +137,16 @@ function render(items){
 
   const el=document.createElement('div');
   el.className='card';
+
   el.innerHTML=`
-   <img src="${i.image||''}"/>
-   <div class="card-body">
-    <div class="card-name">${i.name}</div>
-    <div class="card-price">R$ ${i.price}</div>
-   </div>`;
+    <img src="${i.image || 'https://via.placeholder.com/300'}">
+    <div class="card-body">
+      <div class="card-name">${i.name}</div>
+      <div class="card-price">R$ ${i.price}</div>
+      <div class="card-store">${i.store || ''}</div>
+      <div class="card-person">${i.addedBy || ''}</div>
+    </div>`;
+
   grid.appendChild(el);
  });
 
