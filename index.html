@@ -1,392 +1,111 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#f7f3ef" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Wishlist" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="icon-192.png" />
-  <title>Wishlist</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root{--bg:#f7f3ef;--card:rgba(255,255,255,.9);--border:rgba(81,53,43,.10);--text:#56433c;--text-muted:#8f7b72;--title:#6c544c;--shadow:0 12px 35px rgba(103,73,60,.08);}    
-    *{box-sizing:border-box} html,body{margin:0;padding:0;background:linear-gradient(180deg,#fbf8f5 0%,#f1ebe5 100%);color:var(--text);font-family:'Inter',system-ui,sans-serif} button,input,select,textarea{font-family:inherit}
-    #root{position:relative;z-index:1} body::before{content:"";position:fixed;inset:0;background:radial-gradient(circle at top right, rgba(233,201,199,.20), transparent 28%), radial-gradient(circle at bottom left, rgba(240,214,203,.22), transparent 26%);pointer-events:none;z-index:0}
-    .app-shell{min-height:100vh;padding:24px 14px 110px}.container{max-width:1320px;margin:0 auto}
-    .hero,.panel,.stat-card,.board-column,.category-card,.modal{background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow)}
-    .hero{padding:28px;border-radius:28px;margin-bottom:16px;background:linear-gradient(135deg,rgba(255,255,255,.65),rgba(255,255,255,.84));backdrop-filter:blur(14px)}
-    .hero-head{text-align:center}.hero-head h1{margin:0;font-family:'Cormorant Garamond',serif;font-size:clamp(42px,6vw,66px);line-height:.95;color:var(--title);font-weight:600}.hero-head p{margin:10px 0 0;color:var(--text-muted);font-size:15px}
-    .hero-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:18px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px}.tab,.btn,.chip,.mini-btn{border:1px solid rgba(108,84,76,.12);background:rgba(255,255,255,.85);color:var(--text);border-radius:16px;padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 6px 20px rgba(103,73,60,.06)} .btn.primary{background:linear-gradient(135deg,#eed6d2,#e8c0bb)} .btn.soft{background:#fbf5f2}.tab{border-radius:999px;padding:10px 15px;font-size:13px}.tab.active{background:rgba(255,255,255,.98)}
-    .search-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;margin-top:18px}.input,.select,.textarea{width:100%;border:1px solid rgba(108,84,76,.10);background:rgba(255,255,255,.82);color:var(--text);border-radius:16px;padding:13px 15px;font-size:14px;outline:none}.textarea{min-height:110px;resize:vertical}
-    .summary-top{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}.stat-card{padding:18px;border-radius:22px}.stat-card span{display:block;color:var(--text-muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em}.stat-card strong{display:block;margin-top:8px;font-size:clamp(18px,3vw,28px);line-height:1.1;word-break:break-word}
-    .panel{padding:18px;border-radius:24px}.filters-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}.chip-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.chip{border-radius:999px;padding:9px 12px;font-size:12px}.chip.active,.tag.want,.tag.need,.tag.purchased{box-shadow:0 8px 18px rgba(103,73,60,.07)} .chip.want.active,.tag.want{background:rgba(242,211,123,.5)} .chip.need.active,.tag.need{background:rgba(217,137,116,.4)} .chip.purchased.active,.tag.purchased{background:rgba(216,213,209,.9)}
-    .main-layout{display:grid;grid-template-columns:minmax(0,1.2fr) 330px;gap:18px;margin-top:18px}.gallery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-    .product-card{overflow:hidden;border-radius:24px;background:#fff;border:1px solid rgba(108,84,76,.10);box-shadow:0 18px 28px rgba(103,73,60,.08)} .product-card.purchased{background:rgba(246,245,243,.96)} .product-card.purchased .product-image{filter:grayscale(100%) saturate(.2) brightness(1.03)}
-    .product-image-wrap{position:relative;aspect-ratio:4/3;background:#efe9e2}.product-image{width:100%;height:100%;object-fit:cover;display:block}.image-fallback{height:100%;display:flex;align-items:center;justify-content:center;font-size:50px;color:#ccb9ae;background:linear-gradient(135deg,#f3ece6,#ece2db)}
-    .card-actions{position:absolute;top:12px;right:12px;display:flex;gap:8px}.icon-btn{width:36px;height:36px;border-radius:999px;border:1px solid rgba(108,84,76,.12);background:rgba(255,255,255,.88);display:grid;place-items:center;cursor:pointer}
-    .product-content{padding:16px}.product-store{margin:0 0 6px;color:var(--text-muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}.product-name{margin:0;font-size:18px;line-height:1.2}.product-price{margin-top:10px;font-size:26px;font-family:'Cormorant Garamond',serif;color:var(--title);font-weight:700}.product-info{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.tag{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;border:1px solid rgba(108,84,76,.08);font-size:11px;font-weight:700}.tag.added-by{background:rgba(238,214,210,.58)} .tag.favorite{background:rgba(255,255,255,.86)} .path,.hint{margin-top:12px;font-size:12px;color:var(--text-muted);line-height:1.5}
-    .card-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px}.card-link{font-size:13px;font-weight:700;color:var(--text);text-decoration:none}.mini-btn{padding:8px 12px;border-radius:999px;font-size:12px}
-    .side-summary{display:grid;gap:12px}.summary-row{display:flex;justify-content:space-between;gap:10px;padding-bottom:10px;border-bottom:1px dashed rgba(108,84,76,.12);font-size:14px}.summary-row:last-child{border-bottom:0;padding-bottom:0}.section-title{margin:0 0 14px;font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.12em}
-    .bottom-summary{margin-top:18px}.bottom-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-    .category-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.category-card{border-radius:24px;overflow:hidden}.category-hero{position:relative;height:220px}.category-hero img{width:100%;height:100%;object-fit:cover}.category-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(72,48,40,.48));display:flex;align-items:flex-end;padding:18px}.category-overlay h3{margin:0;font-family:'Cormorant Garamond',serif;font-size:38px;color:white}.category-meta{padding:18px}.area-card{background:rgba(255,255,255,.58);border:1px solid rgba(108,84,76,.08);border-radius:18px;padding:12px 14px;margin-top:10px}.area-card strong{display:block;font-size:15px;margin-bottom:6px}.area-card span{font-size:13px;color:var(--text-muted)}
-    .board-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.board-column{padding:16px;border-radius:24px}.board-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.board-header h3{margin:0;font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--title)}.mini-card{background:rgba(255,255,255,.84);border:1px solid rgba(108,84,76,.08);border-radius:18px;overflow:hidden}.mini-card img{width:100%;height:140px;object-fit:cover}.mini-card.purchased img{filter:grayscale(100%) saturate(.2)}.mini-card-body{padding:12px}.mini-card-body h4{margin:0 0 6px;font-size:14px}.mini-card-body p{margin:0;color:var(--text-muted);font-size:12px}
-    .empty{padding:36px;text-align:center;color:var(--text-muted);font-size:15px;background:rgba(255,255,255,.68);border-radius:22px;border:1px dashed rgba(108,84,76,.12)}
-    .modal-backdrop{position:fixed;inset:0;background:rgba(69,47,40,.22);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50;backdrop-filter:blur(4px)} .modal{width:min(920px,100%);max-height:92vh;overflow:auto;border-radius:28px;padding:22px;background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(251,248,245,.98))} .modal-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.modal-header h2{margin:0;font-family:'Cormorant Garamond',serif;font-size:36px;color:var(--title)} .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.form-full{grid-column:1/-1}.footer-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
-    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:28px;background:rgba(93,73,64,.95);color:white;padding:12px 16px;border-radius:999px;z-index:60}.loader{display:inline-flex;align-items:center;gap:8px}.dot{width:8px;height:8px;border-radius:999px;background:#a78579;animation:b .9s infinite ease-in-out alternate}.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}@keyframes b{from{opacity:.35;transform:translateY(0)}to{opacity:1;transform:translateY(-4px)}}
-    @media(max-width:1180px){.filters-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.main-layout{grid-template-columns:1fr}.summary-top,.bottom-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.category-grid{grid-template-columns:1fr}}
-    @media(max-width:760px){.app-shell{padding:16px 12px 90px}.hero{padding:20px}.search-row,.filters-grid,.form-grid,.board-grid{grid-template-columns:1fr}.gallery-grid,.summary-top,.bottom-summary-grid{grid-template-columns:1fr}.toolbar{overflow-x:auto;flex-wrap:nowrap}.tab{white-space:nowrap}}
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wishlist</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{margin:0;font-family:Inter,Arial;background:#f7f3ef;color:#56433c}
+.container{max-width:1100px;margin:0 auto;padding:20px}
+h1{text-align:center;font-size:42px;margin:10px 0}
+.subtitle{text-align:center;color:#8f7b72;margin-bottom:20px}
+
+.grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+ gap:14px;
+}
+
+.card{
+ background:#fff;
+ border-radius:16px;
+ overflow:hidden;
+ box-shadow:0 8px 20px rgba(0,0,0,0.06);
+}
+.card img{width:100%;height:130px;object-fit:cover}
+.card-body{padding:10px}
+.card-name{font-weight:600}
+.card-price{font-size:14px;margin-top:4px;color:#6c544c}
+
+.summary{
+ margin-top:40px;
+}
+.summary-grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+ gap:14px;
+}
+.summary-card{
+ background:#fff;
+ padding:18px;
+ border-radius:16px;
+}
+.summary-title{font-size:12px;color:#8f7b72}
+.summary-value{font-size:22px;font-weight:bold;margin-top:4px}
+</style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-const { useEffect, useMemo, useRef, useState } = React;
-const SUPABASE_URL = "https://nxhwtamhpyqwxozlvwco.supabase.co";
-const SUPABASE_KEY = "sb_publishable_Eg3BHEjDFYkKDQ4K4ZqODg_uYvuRRBM";
-const TABLE_NAME = "financas";
-const ROW_ID = 2;
-const IMPORT_FUNCTION_NAME = "import-product";
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<div class="container">
+<h1>Wishlist</h1>
+<div class="subtitle">Minha listinha de compras</div>
 
-const CATEGORY_STRUCTURE = {
-  Casa: { image: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80", subcategories: {
-    "Quarto": ["Decoração", "Móveis", "Eletro", "Iluminação", "Organização", "Têxteis"],
-    "Sala": ["Decoração", "Móveis", "Eletro", "Iluminação", "Organização", "Têxteis"],
-    "Cozinha": ["Decoração", "Móveis", "Eletro", "Organização", "Mesa & Louça"],
-    "Banheiro Suíte": ["Decoração", "Organização", "Têxteis", "Eletro"],
-    "Banheiro Social": ["Decoração", "Organização", "Têxteis"],
-    "Escritório / Home Office": ["Móveis", "Decoração", "Eletro", "Organização", "Iluminação"],
-    "Varanda": ["Móveis", "Decoração", "Iluminação", "Jardinagem"],
-    "Lavanderia": ["Organização", "Eletro", "Utilidades"]
-  }},
-  Moda: { image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1200&q=80", subcategories: {
-    "Calçados": ["Sapatos", "Tênis", "Sandálias", "Botas", "Chinelos"],
-    "Vestuário": ["Blusas", "Vestidos", "Calças", "Saias", "Conjuntos", "Casacos", "Roupas íntimas", "Pijamas"],
-    "Acessórios": ["Bolsas", "Cintos", "Óculos", "Cachecóis", "Chapéus"],
-    "Joias & Bijuterias": ["Brincos", "Colares", "Pulseiras", "Anéis", "Relógios"]
-  }},
-  Beleza: { image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1200&q=80", subcategories: {
-    "Pele": ["Skincare", "Cremes", "Séruns", "Protetor solar", "Limpeza facial"],
-    "Make": ["Base", "Corretivo", "Batom", "Paleta", "Máscara de cílios", "Pincéis"],
-    "Cabelo": ["Shampoo", "Condicionador", "Máscaras", "Finalizadores", "Ferramentas"],
-    "Perfumes": ["Dia a dia", "Ocasiões especiais"]
-  }},
-  Extra: { image: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1200&q=80", subcategories: {
-    "Presentes": ["Aniversário", "Datas especiais", "Lembranças"],
-    "Viagem": ["Mala", "Nécessaire", "Organizadores", "Conforto"],
-    "Bem-estar": ["Academia", "Yoga", "Massagem", "Relaxamento", "Autocuidado"],
-    "Papelaria / organização pessoal": ["Planner", "Cadernos", "Canetas", "Itens de organização"],
-    "Outros": ["Itens livres"]
-  }}
-};
+<div id="grid" class="grid"></div>
 
-const DEFAULT_STATE = {
-  items: [
-    { id:1, name:"Poltrona de leitura", store:"Tok&Stok", price:999, image:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80", link:"", category:"Casa", subcategory:"Sala", type:"Móveis", status:"Need", favorite:true, addedBy:"Marcela", notes:"Para o canto de leitura.", createdAt:new Date().toISOString(), purchasedAt:null },
-    { id:2, name:"Sérum vitamina C", store:"Sephora", price:189.9, image:"https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=1200&q=80", link:"", category:"Beleza", subcategory:"Pele", type:"Séruns", status:"Want", favorite:false, addedBy:"Ricardo", notes:"Opção de skincare para testar.", createdAt:new Date().toISOString(), purchasedAt:null },
-    { id:3, name:"Jogo de toalhas premium", store:"Zara Home", price:259, image:"https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=1200&q=80", link:"", category:"Casa", subcategory:"Banheiro Suíte", type:"Têxteis", status:"Purchased", favorite:false, addedBy:"Marcela", notes:"Comprado para o banheiro suíte.", createdAt:new Date().toISOString(), purchasedAt:new Date().toISOString() }
-  ],
-  nextId: 4,
-  categoryImages: {}
-};
+<div class="summary">
+<div class="summary-grid">
+  <div class="summary-card"><div class="summary-title">Total de itens</div><div id="total" class="summary-value">0</div></div>
+  <div class="summary-card"><div class="summary-title">Need</div><div id="need" class="summary-value">0</div></div>
+  <div class="summary-card"><div class="summary-title">Total gasto</div><div id="spent" class="summary-value">R$ 0</div></div>
+  <div class="summary-card"><div class="summary-title">Favoritos</div><div id="fav" class="summary-value">0</div></div>
+</div>
+</div>
 
-const STATUS_OPTIONS = ["Want", "Need", "Purchased"];
-const PEOPLE = ["Ricardo", "Marcela"];
-const TABS = [
-  { id: "galeria", label: "Galeria" },
-  { id: "categorias", label: "Categorias" },
-  { id: "board", label: "Board" },
-  { id: "favoritos", label: "Favoritos" },
-  { id: "importar", label: "Importar" }
-];
+</div>
 
-const emptyItem = () => ({ id:null, name:"", store:"", price:"", image:"", link:"", category:"Casa", subcategory:"Quarto", type:"Decoração", status:"Want", favorite:false, addedBy:"Ricardo", notes:"" });
-const categoryImageSeed = Object.fromEntries(Object.entries(CATEGORY_STRUCTURE).map(([k,v]) => [k, v.image]));
-function fmtCurrency(v){ return Number(v||0).toLocaleString("pt-BR", { style:"currency", currency:"BRL" }); }
-function normalizeState(saved){ return { items:Array.isArray(saved?.items)?saved.items:DEFAULT_STATE.items, nextId:saved?.nextId || DEFAULT_STATE.nextId, categoryImages:{...categoryImageSeed, ...(saved?.categoryImages || {})} }; }
-async function loadSharedData(){ try { const res = await sb.from(TABLE_NAME).select("dados").eq("id", ROW_ID).single(); if(res.error || !res.data?.dados) return null; return JSON.parse(res.data.dados); } catch(e){ console.error(e); return null; } }
-async function saveSharedData(data){ try { await sb.from(TABLE_NAME).upsert({ id: ROW_ID, dados: JSON.stringify(data) }, { onConflict:"id" }); return true; } catch(e){ console.error(e); return false; } }
-function slugToTitle(slug){ return slug.replace(/[-_]+/g," ").replace(/\b\d+\b/g," ").replace(/\s+/g,' ').trim().split(' ').map(w => w ? w[0].toUpperCase()+w.slice(1) : '').join(' '); }
-function inferProductFromUrl(rawUrl){ try { const url = new URL(rawUrl); const host = url.hostname.replace(/^www\./,''); const store = host.split('.')[0].split(/[-_]/).map(w => w[0].toUpperCase()+w.slice(1)).join(' '); const parts = url.pathname.split('/').filter(Boolean); const last = decodeURIComponent(parts[parts.length - 1] || ''); return { name: slugToTitle(last.replace(/\.[a-zA-Z0-9]+$/, '')) || 'Produto importado', store, image:'', link:rawUrl, price:'' }; } catch(e){ return null; } }
+<script>
+const SUPABASE_URL="https://nxhwtamhpyqwxozlvwco.supabase.co";
+const SUPABASE_KEY="sb_publishable_Eg3BHEjDFYkKDQ4K4ZqODg_uYvuRRBM";
+const TABLE="financas";
+const ROW_ID=2;
 
-async function callImportFunction(url){
-  const endpoint = `${SUPABASE_URL}/functions/v1/${IMPORT_FUNCTION_NAME}`;
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`
-    },
-    body: JSON.stringify({ url })
-  });
-  if(!res.ok){
-    const text = await res.text();
-    throw new Error(text || 'Falha ao importar produto');
-  }
-  return await res.json();
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+async function load(){
+ const res=await sb.from(TABLE).select('dados').eq('id',ROW_ID).single();
+ const data=res.data?JSON.parse(res.data.dados):{items:[]};
+ render(data.items||[]);
 }
 
-function ProductCard({ item, onEdit, onDelete, onToggleFavorite }){
-  return <div className={"product-card " + (item.status === 'Purchased' ? 'purchased' : '')}>
-    <div className="product-image-wrap">
-      {item.image ? <img className="product-image" src={item.image} alt={item.name} /> : <div className="image-fallback">♡</div>}
-      <div className="card-actions">
-        <button className="icon-btn" onClick={() => onToggleFavorite(item.id)}>{item.favorite ? '★' : '☆'}</button>
-        <button className="icon-btn" onClick={() => onEdit(item)}>✎</button>
-      </div>
-    </div>
-    <div className="product-content">
-      <p className="product-store">{item.store || 'Loja não definida'}</p>
-      <h3 className="product-name">{item.name || 'Produto sem nome'}</h3>
-      <div className="product-price">{fmtCurrency(item.price)}</div>
-      <div className="product-info">
-        <span className={"tag " + item.status.toLowerCase()}>{item.status}</span>
-        <span className="tag added-by">Adicionado por {item.addedBy}</span>
-        {item.favorite && <span className="tag favorite">Favorito</span>}
-      </div>
-      <div className="path">{item.category} → {item.subcategory} → {item.type}</div>
-      {item.notes && <div className="hint">{item.notes}</div>}
-      <div className="card-footer">
-        {item.link ? <a className="card-link" href={item.link} target="_blank" rel="noreferrer">Abrir produto ↗</a> : <span className="card-link" style={{color:'var(--text-muted)'}}>Sem link</span>}
-        <button className="mini-btn" onClick={() => onDelete(item.id)}>Remover</button>
-      </div>
-    </div>
-  </div>;
+function render(items){
+ const grid=document.getElementById('grid');
+ grid.innerHTML='';
+ let total=items.length;
+ let need=0,spent=0,fav=0;
+
+ items.forEach(i=>{
+  if(i.status==='Need')need++;
+  if(i.status==='Purchased')spent+=Number(i.price||0);
+  if(i.favorite)fav++;
+
+  const el=document.createElement('div');
+  el.className='card';
+  el.innerHTML=`
+   <img src="${i.image||''}"/>
+   <div class="card-body">
+    <div class="card-name">${i.name}</div>
+    <div class="card-price">R$ ${i.price}</div>
+   </div>`;
+  grid.appendChild(el);
+ });
+
+ document.getElementById('total').innerText=total;
+ document.getElementById('need').innerText=need;
+ document.getElementById('spent').innerText='R$ '+spent;
+ document.getElementById('fav').innerText=fav;
 }
 
-function MiniBoardCard({ item, onEdit }){
-  return <div className={"mini-card " + (item.status === 'Purchased' ? 'purchased' : '')}>
-    {item.image ? <img src={item.image} alt={item.name} /> : <div className="image-fallback" style={{height:140,fontSize:34}}>♡</div>}
-    <div className="mini-card-body">
-      <h4>{item.name}</h4>
-      <p>{item.store || 'Loja'} • {fmtCurrency(item.price)}</p>
-      <div className="product-info" style={{marginTop:10}}>
-        <span className={"tag " + item.status.toLowerCase()}>{item.status}</span>
-        <span className="tag added-by">{item.addedBy}</span>
-      </div>
-      <button className="mini-btn" style={{marginTop:10}} onClick={() => onEdit(item)}>Editar</button>
-    </div>
-  </div>;
-}
-
-function App(){
-  const [data, setData] = useState(normalizeState(null));
-  const [loaded, setLoaded] = useState(false);
-  const [tab, setTab] = useState('galeria');
-  const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState({ category:'', subcategory:'', type:'', status:'', addedBy:'', favoritesOnly:false, sort:'recent' });
-  const [modalOpen, setModalOpen] = useState(false);
-  const [draft, setDraft] = useState(emptyItem());
-  const [categoryModal, setCategoryModal] = useState(null);
-  const [toast, setToast] = useState('');
-  const [syncing, setSyncing] = useState(true);
-  const [importUrl, setImportUrl] = useState('');
-  const [importDraft, setImportDraft] = useState(null);
-  const [importing, setImporting] = useState(false);
-  const saveTimer = useRef(null);
-
-  useEffect(() => { (async()=>{ const saved = await loadSharedData(); setData(normalizeState(saved || DEFAULT_STATE)); setLoaded(true); setSyncing(false); })(); }, []);
-  useEffect(() => { if(!loaded) return; if(saveTimer.current) clearTimeout(saveTimer.current); setSyncing(true); saveTimer.current = setTimeout(async()=>{ await saveSharedData(data); setSyncing(false); }, 400); return ()=>clearTimeout(saveTimer.current); }, [data, loaded]);
-  function showToast(msg){ setToast(msg); setTimeout(()=>setToast(''), 2800); }
-
-  const categories = Object.keys(CATEGORY_STRUCTURE);
-  const subcategoriesForDraft = Object.keys(CATEGORY_STRUCTURE[draft.category].subcategories);
-  const typesForDraft = CATEGORY_STRUCTURE[draft.category].subcategories[draft.subcategory] || [];
-  const subcategoryOptions = filters.category ? Object.keys(CATEGORY_STRUCTURE[filters.category].subcategories) : [];
-  const typeOptions = filters.category && filters.subcategory ? CATEGORY_STRUCTURE[filters.category].subcategories[filters.subcategory] || [] : [];
-
-  const filteredItems = useMemo(() => {
-    let next = data.items.slice();
-    if(search.trim()){
-      const token = search.toLowerCase();
-      next = next.filter(item => [item.name,item.store,item.category,item.subcategory,item.type,item.addedBy,item.notes].filter(Boolean).some(v => String(v).toLowerCase().includes(token)));
-    }
-    if(filters.category) next = next.filter(item => item.category === filters.category);
-    if(filters.subcategory) next = next.filter(item => item.subcategory === filters.subcategory);
-    if(filters.type) next = next.filter(item => item.type === filters.type);
-    if(filters.status) next = next.filter(item => item.status === filters.status);
-    if(filters.addedBy) next = next.filter(item => item.addedBy === filters.addedBy);
-    if(filters.favoritesOnly) next = next.filter(item => item.favorite);
-    next.sort((a,b)=>{
-      if(filters.sort === 'priceAsc') return Number(a.price||0) - Number(b.price||0);
-      if(filters.sort === 'priceDesc') return Number(b.price||0) - Number(a.price||0);
-      if(filters.sort === 'name') return String(a.name||'').localeCompare(String(b.name||''), 'pt-BR');
-      return new Date(b.createdAt||0) - new Date(a.createdAt||0);
-    });
-    return next;
-  }, [data.items, search, filters]);
-
-  const purchasedItems = data.items.filter(item => item.status === 'Purchased');
-  const totalSpent = purchasedItems.reduce((s,i)=>s+Number(i.price||0),0);
-  const totalWishlist = data.items.reduce((s,i)=>s+Number(i.price||0),0);
-  const remainingValue = data.items.filter(item => item.status !== 'Purchased').reduce((s,i)=>s+Number(i.price||0),0);
-  const favoriteItems = filteredItems.filter(i=>i.favorite);
-  const totalNeed = data.items.filter(i=>i.status === 'Need').length;
-  const personSummary = PEOPLE.map(person => ({ person, items: data.items.filter(i=>i.addedBy===person).length, bought: data.items.filter(i=>i.addedBy===person && i.status==='Purchased').reduce((s,i)=>s+Number(i.price||0),0) }));
-
-  function resetFilters(){ setFilters({ category:'', subcategory:'', type:'', status:'', addedBy:'', favoritesOnly:false, sort:'recent' }); setSearch(''); }
-  function openNewModal(prefill){ const next = { ...emptyItem(), ...prefill }; const validSub = Object.keys(CATEGORY_STRUCTURE[next.category].subcategories); if(!validSub.includes(next.subcategory)) next.subcategory = validSub[0]; const validType = CATEGORY_STRUCTURE[next.category].subcategories[next.subcategory]; if(!validType.includes(next.type)) next.type = validType[0]; setDraft(next); setModalOpen(true); }
-  function openEditModal(item){ setDraft({ ...item, price: String(item.price ?? '') }); setModalOpen(true); }
-  function updateDraft(field, value){ setDraft(prev => { const next = { ...prev, [field]: value }; if(field === 'category'){ const subs = Object.keys(CATEGORY_STRUCTURE[value].subcategories); next.subcategory = subs[0]; next.type = CATEGORY_STRUCTURE[value].subcategories[next.subcategory][0]; } if(field === 'subcategory'){ next.type = CATEGORY_STRUCTURE[next.category].subcategories[value][0]; } return next; }); }
-  async function handleItemImageUpload(e){ const file = e.target.files?.[0]; if(!file) return; const reader = new FileReader(); reader.onload = () => updateDraft('image', reader.result); reader.readAsDataURL(file); }
-  async function handleCategoryImageUpload(e){ const file = e.target.files?.[0]; if(!file || !categoryModal) return; const reader = new FileReader(); reader.onload = () => { setData(prev => ({ ...prev, categoryImages:{ ...prev.categoryImages, [categoryModal]: reader.result } })); showToast('Imagem da categoria atualizada.'); }; reader.readAsDataURL(file); }
-  function saveItem(){ if(!draft.name.trim()) return showToast('Informe o nome do produto.'); if(!draft.store.trim()) return showToast('Informe a loja.'); const price = Number(String(draft.price).replace(/\./g,'').replace(',', '.')); if(Number.isNaN(price) || price <= 0) return showToast('Informe um valor válido.'); setData(prev => { const payload = { ...draft, price, createdAt: draft.id ? draft.createdAt : new Date().toISOString(), purchasedAt: draft.status === 'Purchased' ? (draft.purchasedAt || new Date().toISOString()) : null }; if(draft.id){ return { ...prev, items: prev.items.map(item => item.id === draft.id ? payload : item) }; } return { ...prev, nextId: prev.nextId + 1, items: [{ ...payload, id: prev.nextId }, ...prev.items] }; }); setModalOpen(false); showToast(draft.id ? 'Produto atualizado.' : 'Produto adicionado.'); }
-  function deleteItem(id){ if(!window.confirm('Remover este item da wishlist?')) return; setData(prev => ({ ...prev, items: prev.items.filter(i => i.id !== id) })); showToast('Item removido.'); }
-  function toggleFavorite(id){ setData(prev => ({ ...prev, items: prev.items.map(i => i.id === id ? { ...i, favorite: !i.favorite } : i) })); }
-  async function runImport(){
-    if(!importUrl.trim()) return showToast('Cole um link.');
-    setImporting(true);
-    try {
-      let payload;
-      try {
-        payload = await callImportFunction(importUrl.trim());
-      } catch(err) {
-        console.error('Edge function falhou, usando fallback local', err);
-        payload = { success:true, data: inferProductFromUrl(importUrl.trim()), source:'fallback' };
-      }
-      if(!payload?.data) throw new Error('Nenhum dado retornado');
-      const imported = { ...emptyItem(), ...payload.data, addedBy: filters.addedBy || 'Ricardo' };
-      setImportDraft(imported);
-      showToast(payload.source === 'fallback' ? 'Importação parcial. Complete os campos restantes.' : 'Produto importado. Revise e salve.');
-    } catch(err) {
-      console.error(err);
-      showToast('Não foi possível importar este link.');
-    } finally {
-      setImporting(false);
-    }
-  }
-  function applyImport(){ if(!importDraft) return; openNewModal(importDraft); setTab('galeria'); }
-
-  if(!loaded) return <div className="app-shell"><div className="container"><div className="empty">Carregando sua wishlist...</div></div></div>;
-
-  return <div className="app-shell"><div className="container">
-    <div className="hero">
-      <div className="hero-head">
-        <h1>Wishlist</h1>
-        <p>Minha listinha de compras</p>
-      </div>
-      <div className="hero-actions">
-        <button className="btn soft" onClick={()=>setTab('importar')}>Importar link</button>
-        <button className="btn" onClick={()=>openNewModal()}>+ Novo produto</button>
-        <button className="btn primary" onClick={()=>setFilters(prev => ({ ...prev, addedBy: prev.addedBy === 'Marcela' ? '' : 'Marcela' }))}>Ver só Marcela</button>
-      </div>
-      <div className="search-row">
-        <input className="input" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Busque por produto, loja, categoria ou quem adicionou..." />
-        <button className="btn" onClick={resetFilters}>Limpar filtros</button>
-      </div>
-      <div className="toolbar">
-        {TABS.map(item => <button key={item.id} className={"tab " + (tab === item.id ? 'active' : '')} onClick={()=>setTab(item.id)}>{item.label}</button>)}
-        {syncing && <span className="tab active" style={{cursor:'default'}}>☁️ salvando</span>}
-      </div>
-      <div className="summary-top">
-        <div className="stat-card"><span>Total de itens</span><strong>{data.items.length}</strong></div>
-        <div className="stat-card"><span>Need</span><strong>{totalNeed}</strong></div>
-        <div className="stat-card"><span>Total gasto</span><strong>{fmtCurrency(totalSpent)}</strong></div>
-        <div className="stat-card"><span>Favoritos</span><strong>{favoriteItems.length}</strong></div>
-      </div>
-    </div>
-
-    {(tab === 'galeria' || tab === 'favoritos' || tab === 'board') && <div className="panel">
-      <div className="filters-grid">
-        <select className="select" value={filters.category} onChange={e=>setFilters(prev=>({ ...prev, category:e.target.value, subcategory:'', type:'' }))}><option value="">Todas as categorias</option>{categories.map(c => <option key={c} value={c}>{c}</option>)}</select>
-        <select className="select" value={filters.subcategory} onChange={e=>setFilters(prev=>({ ...prev, subcategory:e.target.value, type:'' }))}><option value="">Todas as subcategorias</option>{subcategoryOptions.map(c => <option key={c} value={c}>{c}</option>)}</select>
-        <select className="select" value={filters.type} onChange={e=>setFilters(prev=>({ ...prev, type:e.target.value }))}><option value="">Todos os tipos</option>{typeOptions.map(c => <option key={c} value={c}>{c}</option>)}</select>
-        <select className="select" value={filters.status} onChange={e=>setFilters(prev=>({ ...prev, status:e.target.value }))}><option value="">Todos os status</option>{STATUS_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}</select>
-        <select className="select" value={filters.addedBy} onChange={e=>setFilters(prev=>({ ...prev, addedBy:e.target.value }))}><option value="">Todos adicionados por</option>{PEOPLE.map(c => <option key={c} value={c}>{c}</option>)}</select>
-        <select className="select" value={filters.sort} onChange={e=>setFilters(prev=>({ ...prev, sort:e.target.value }))}><option value="recent">Mais recentes</option><option value="priceAsc">Menor preço</option><option value="priceDesc">Maior preço</option><option value="name">Nome A-Z</option></select>
-      </div>
-      <div className="chip-row">
-        <button className={"chip want " + (filters.status==='Want'?'active':'')} onClick={()=>setFilters(prev=>({ ...prev, status: prev.status === 'Want' ? '' : 'Want' }))}>Want</button>
-        <button className={"chip need " + (filters.status==='Need'?'active':'')} onClick={()=>setFilters(prev=>({ ...prev, status: prev.status === 'Need' ? '' : 'Need' }))}>Need</button>
-        <button className={"chip purchased " + (filters.status==='Purchased'?'active':'')} onClick={()=>setFilters(prev=>({ ...prev, status: prev.status === 'Purchased' ? '' : 'Purchased' }))}>Purchased</button>
-        <button className={"chip " + (filters.favoritesOnly?'active':'')} onClick={()=>setFilters(prev=>({ ...prev, favoritesOnly: !prev.favoritesOnly }))}>Só favoritos</button>
-        <button className={"chip " + (filters.addedBy==='Ricardo'?'active':'')} onClick={()=>setFilters(prev=>({ ...prev, addedBy: prev.addedBy === 'Ricardo' ? '' : 'Ricardo' }))}>Só Ricardo</button>
-        <button className={"chip " + (filters.addedBy==='Marcela'?'active':'')} onClick={()=>setFilters(prev=>({ ...prev, addedBy: prev.addedBy === 'Marcela' ? '' : 'Marcela' }))}>Só Marcela</button>
-      </div>
-    </div>}
-
-    {tab === 'galeria' && <>
-      <div className="main-layout">
-        <div className="panel">{filteredItems.length ? <div className="gallery-grid">{filteredItems.map(item => <ProductCard key={item.id} item={item} onEdit={openEditModal} onDelete={deleteItem} onToggleFavorite={toggleFavorite} />)}</div> : <div className="empty">Nenhum item encontrado.</div>}</div>
-        <div className="panel">
-          <h3 className="section-title">Por pessoa</h3>
-          <div className="side-summary">{personSummary.map(row => <div className="summary-row" key={row.person}><span>{row.person} • {row.items} itens</span><strong>{fmtCurrency(row.bought)}</strong></div>)}</div>
-        </div>
-      </div>
-      <div className="panel bottom-summary">
-        <h3 className="section-title">Resumo financeiro</h3>
-        <div className="bottom-summary-grid">
-          <div className="stat-card"><span>Comprados</span><strong>{purchasedItems.length}</strong></div>
-          <div className="stat-card"><span>Total gasto</span><strong>{fmtCurrency(totalSpent)}</strong></div>
-          <div className="stat-card"><span>Total wishlist</span><strong>{fmtCurrency(totalWishlist)}</strong></div>
-          <div className="stat-card"><span>Falta comprar</span><strong>{fmtCurrency(remainingValue)}</strong></div>
-        </div>
-      </div>
-    </>}
-
-    {tab === 'categorias' && <div className="category-grid">{categories.map(category => {
-      const image = data.categoryImages[category] || categoryImageSeed[category];
-      const subcats = CATEGORY_STRUCTURE[category].subcategories;
-      const count = data.items.filter(i=>i.category===category).length;
-      return <div className="category-card" key={category}><div className="category-hero"><img src={image} alt={category} /><div className="category-overlay"><div><h3>{category}</h3><div style={{color:'rgba(255,255,255,.88)',fontSize:'13px'}}>{count} item(ns)</div></div></div><div className="card-actions"><button className="icon-btn" onClick={()=>setCategoryModal(category)}>🖼️</button></div></div><div className="category-meta">{Object.entries(subcats).map(([sub, types]) => <div className="area-card" key={sub}><strong>{sub}</strong><span>{types.join(' • ')}</span></div>)}</div></div>;
-    })}</div>}
-
-    {tab === 'board' && <div className="board-grid">{STATUS_OPTIONS.map(status => { const items = filteredItems.filter(i=>i.status===status); return <div className="board-column" key={status}><div className="board-header"><h3>{status}</h3><span className={"tag " + status.toLowerCase()}>{items.length}</span></div>{items.length ? items.map(item => <MiniBoardCard key={item.id} item={item} onEdit={openEditModal} />) : <div className="empty" style={{padding:24}}>Sem itens em {status}.</div>}</div>; })}</div>}
-
-    {tab === 'favoritos' && <div className="panel">{favoriteItems.length ? <div className="gallery-grid">{favoriteItems.map(item => <ProductCard key={item.id} item={item} onEdit={openEditModal} onDelete={deleteItem} onToggleFavorite={toggleFavorite} />)}</div> : <div className="empty">Ainda não há favoritos.</div>}</div>}
-
-    {tab === 'importar' && <div className="main-layout">
-      <div className="panel">
-        <h3 className="section-title">Importar por link com Supabase</h3>
-        <input className="input" value={importUrl} onChange={e=>setImportUrl(e.target.value)} placeholder="Cole um link de produto" />
-        <div className="hint">Quando a Edge Function estiver publicada, o app tentará buscar nome, loja, imagem e preço automaticamente. Se a loja bloquear scraping, ele cai em um preenchimento parcial.</div>
-        <div className="footer-actions" style={{justifyContent:'flex-start'}}>
-          <button className="btn primary" onClick={runImport} disabled={importing}>{importing ? <span className="loader"><span className="dot"></span><span className="dot"></span><span className="dot"></span></span> : 'Importar agora'}</button>
-          {importDraft && <button className="btn" onClick={applyImport}>Usar no formulário</button>}
-        </div>
-        {importDraft && <div className="panel" style={{marginTop:16}}>
-          <div style={{display:'flex',gap:14,alignItems:'center',flexWrap:'wrap'}}>
-            <div style={{width:120,height:90,borderRadius:16,overflow:'hidden',background:'#efe9e2'}}>{importDraft.image ? <img src={importDraft.image} alt={importDraft.name} style={{width:'100%',height:'100%',objectFit:'cover'}} /> : <div className="image-fallback" style={{fontSize:28}}>♡</div>}</div>
-            <div>
-              <div style={{fontWeight:700,fontSize:18}}>{importDraft.name || 'Sem nome importado'}</div>
-              <div className="hint" style={{marginTop:6}}>Loja: {importDraft.store || '—'}</div>
-              <div className="hint">Preço: {importDraft.price ? fmtCurrency(importDraft.price) : 'não encontrado'}</div>
-              <div className="hint">Quem vai adicionar: {importDraft.addedBy}</div>
-            </div>
-          </div>
-        </div>}
-      </div>
-      <div className="panel">
-        <h3 className="section-title">O que esperar</h3>
-        <div className="side-summary">
-          <div className="summary-row"><span>Zara Home / Tok&Stok / sites com metadados</span><strong>bom</strong></div>
-          <div className="summary-row"><span>Sites com JSON-LD de produto</span><strong>ótimo</strong></div>
-          <div className="summary-row"><span>Sites bloqueando scraping ou preço por JavaScript</span><strong>parcial</strong></div>
-        </div>
-      </div>
-    </div>}
-  </div>
-
-  {modalOpen && <div className="modal-backdrop" onClick={()=>setModalOpen(false)}><div className="modal" onClick={e=>e.stopPropagation()}><div className="modal-header"><h2>{draft.id ? 'Editar produto' : 'Novo produto'}</h2><button className="icon-btn" onClick={()=>setModalOpen(false)}>×</button></div><div className="form-grid"><div><label>Nome do produto</label><input className="input" value={draft.name} onChange={e=>updateDraft('name', e.target.value)} /></div><div><label>Loja</label><input className="input" value={draft.store} onChange={e=>updateDraft('store', e.target.value)} /></div><div><label>Valor</label><input className="input" value={draft.price} onChange={e=>updateDraft('price', e.target.value)} /></div><div><label>Adicionado por</label><select className="select" value={draft.addedBy} onChange={e=>updateDraft('addedBy', e.target.value)}>{PEOPLE.map(person => <option key={person} value={person}>{person}</option>)}</select></div><div><label>Categoria</label><select className="select" value={draft.category} onChange={e=>updateDraft('category', e.target.value)}>{categories.map(category => <option key={category} value={category}>{category}</option>)}</select></div><div><label>Subcategoria / Área</label><select className="select" value={draft.subcategory} onChange={e=>updateDraft('subcategory', e.target.value)}>{subcategoriesForDraft.map(sub => <option key={sub} value={sub}>{sub}</option>)}</select></div><div><label>Tipo</label><select className="select" value={draft.type} onChange={e=>updateDraft('type', e.target.value)}>{typesForDraft.map(type => <option key={type} value={type}>{type}</option>)}</select></div><div><label>Status</label><select className="select" value={draft.status} onChange={e=>updateDraft('status', e.target.value)}>{STATUS_OPTIONS.map(status => <option key={status} value={status}>{status}</option>)}</select></div><div className="form-full"><label>Link do produto</label><input className="input" value={draft.link} onChange={e=>updateDraft('link', e.target.value)} /></div><div><label>Imagem (URL)</label><input className="input" value={draft.image} onChange={e=>updateDraft('image', e.target.value)} /></div><div><label>Ou envie uma imagem</label><input className="input" type="file" accept="image/*" onChange={handleItemImageUpload} /></div><div className="form-full"><label>Observações</label><textarea className="textarea" value={draft.notes} onChange={e=>updateDraft('notes', e.target.value)} /></div><div className="form-full"><label style={{display:'flex',alignItems:'center',gap:8}}><input type="checkbox" checked={draft.favorite} onChange={e=>updateDraft('favorite', e.target.checked)} /> Marcar como favorito</label></div></div><div className="footer-actions"><button className="btn" onClick={()=>setModalOpen(false)}>Cancelar</button><button className="btn primary" onClick={saveItem}>Salvar produto</button></div></div></div>}
-
-  {categoryModal && <div className="modal-backdrop" onClick={()=>setCategoryModal(null)}><div className="modal" onClick={e=>e.stopPropagation()} style={{maxWidth:620}}><div className="modal-header"><h2>Imagem da categoria {categoryModal}</h2><button className="icon-btn" onClick={()=>setCategoryModal(null)}>×</button></div><div className="form-grid"><div className="form-full"><label>URL da imagem</label><input className="input" value={data.categoryImages[categoryModal] || ''} onChange={e=>setData(prev => ({ ...prev, categoryImages:{ ...prev.categoryImages, [categoryModal]: e.target.value } }))} /></div><div className="form-full"><label>Ou envie uma imagem</label><input className="input" type="file" accept="image/*" onChange={handleCategoryImageUpload} /></div></div><div className="footer-actions"><button className="btn" onClick={()=>setCategoryModal(null)}>Fechar</button></div></div></div>}
-
-  {toast && <div className="toast">{toast}</div>}
-  </div>;
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+load();
 </script>
 </body>
 </html>
